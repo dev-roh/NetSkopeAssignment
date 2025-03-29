@@ -1,0 +1,27 @@
+name: Task 1.2 # Run Bandit on a new pull request on the main branch and reject if any High issues are found
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  run-bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit
+        run: bandit -r . --severity-level high
+
+      - name: Check Bandit Report for High Severity Issues
+        run: |
+            bandit -r . --severity-level high -f json > bandit-report.json
+            if grep -q '"issue_severity": "HIGH"' bandit-report.json; then
+                echo "::error::High severity issues found in Bandit scan. Rejecting the pull request."
+            else
+                echo "No high severity issues found in Bandit scan."
