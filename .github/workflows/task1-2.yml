@@ -19,7 +19,7 @@ jobs:
         run: bandit -r . --severity-level high -f json -o bandit-high-report.json
 
       - name: Publish Bandit Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bandit-high-report
           path: bandit-high-report.json
