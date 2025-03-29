@@ -16,21 +16,17 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit
-        #run: bandit -r . --severity-level high -f json -o bandit-high-report.json
-        uses: PyCQA/bandit-action@v1.0.0
-        with:
-          severity: high
-        
+        run: bandit -r . --severity-level high -f json -o bandit-high-report.json
 
       - name: Publish Bandit Report
         uses: actions/upload-artifact@v4
         with:
           name: Bandit Report
-          path: results.sarif
+          path: bandit-high-report.json
         
       - name: Check Bandit Report for High Severity Issues
         run: |
-            if grep -q '"issue_severity": "HIGH"' results.sarif; then 
+            if grep -q '"issue_severity": "HIGH"' bandit-high-report.json; then 
               echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
             else 
               echo "No high severity issues found in Bandit scan." 
