@@ -54,7 +54,8 @@ jobs:
           COMMENT="🚨 **Security Scan Failed Block** 🚨  
           Bandit detected high-severity security issues. Please fix them before merging."
           gh pr comment $PR_NUMBER --body "$COMMENT"
-          gh pr review $PR_NUMBER --reject --body "$COMMENT"          
+          gh pr review $PR_NUMBER --reject --body "$COMMENT"    
+          exit 1      
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
