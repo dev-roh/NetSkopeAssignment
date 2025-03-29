@@ -25,12 +25,12 @@ jobs:
       - name: Publish Bandit Report
         uses: actions/upload-artifact@v4
         with:
-          name: bandit-high-report
-          path: bandit-high-report.json
+          name: Bandit Report
+          path: results.sarif
         
       - name: Check Bandit Report for High Severity Issues
         run: |
-            if grep -q '"issue_severity": "HIGH"' bandit*.son; then 
+            if grep -q '"issue_severity": "HIGH"' results.sarif; then 
               echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
             else 
               echo "No high severity issues found in Bandit scan." 
