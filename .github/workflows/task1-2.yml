@@ -30,33 +30,23 @@ jobs:
           name: Bandit Report
           path: bandit-high-report.json
         
-      - name: Check Bandit Report for High Severity Issues
+      - name: Check Bandit Report for High Severity Issues and Action on PR
         id: check_bandit
         run: |
             if grep -q '"issue_severity": "HIGH"' bandit-high-report.json; then 
               echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
-              echo "reject_pr=true" >> $GITHUB_ENV
-              echo "reject_pr=true" 
+              PR_NUMBER=${{ github.event.pull_request.number }}
+              COMMENT="🚨 **Block** 🚨    Bandit detected high-severity security issues. Please fix them before merging."
+              gh pr comment $PR_NUMBER --body "$COMMENT"
+              gh pr review $PR_NUMBER -r -b "$COMMENT" 
+              exit 1
             else 
               echo "No high severity issues found in Bandit scan."
-              echo "reject_pr=false" >> $GITHUB_ENV 
-              echo "reject_pr=false" 
+              PR_NUMBER=${{ github.event.pull_request.number }}
+              COMMENT="✅ **Successful**✅  No high-severity issues found in Bandit scan. You can proceed with the merge."
+              gh pr comment $PR_NUMBER --body "$COMMENT"
+              gh pr review $PR_NUMBER -r -b "$COMMENT"
             fi
-        continue-on-error: true
-        # The continue-on-error flag is set to true to allow the workflow to continue even if Bandit finds issues.
-        
-            
-      - name: Reject Pull Request if High Severity Issues Found
-        if: steps.check_bandit.outputs.reject_pr == 'true'
-        run: |
-          echo "High severity issues found. Rejecting the pull request."
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          COMMENT="🚨 **Security Scan Failed Block** 🚨  
-          Bandit detected high-severity security issues. Please fix them before merging."
-          gh pr comment $PR_NUMBER --body "$COMMENT"
-          gh pr review $PR_NUMBER --reject --body "$COMMENT"    
-          exit 1      
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          COMMENT: "🚨 **BLOCK THE PR** 🚨"
+          GH_TOKEN: ${{ github.token }}
+        
