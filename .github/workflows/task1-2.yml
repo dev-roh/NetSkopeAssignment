@@ -35,16 +35,18 @@ jobs:
         run: |
             if grep -q '"issue_severity": "HIGH"' bandit-high-report.json; then 
               echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
-              PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+              PR_NUMBER=${{ github.event.pull_request.number }}
               COMMENT="🚨 **Block** 🚨    Bandit detected high-severity security issues. Please fix them before merging."
               gh pr comment $PR_NUMBER --body "$COMMENT"
               gh pr review $PR_NUMBER -r -b "$COMMENT" 
               exit 1
             else 
               echo "No high severity issues found in Bandit scan."
-              PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+              PR_NUMBER=${{ github.event.pull_request.number }}
               COMMENT="✅ **Successful**✅  No high-severity issues found in Bandit scan. You can proceed with the merge."
               gh pr comment $PR_NUMBER --body "$COMMENT"
               gh pr review $PR_NUMBER -r -b "$COMMENT"
             fi
+        env:
+          GH_TOKEN: ${{ github.token }}
         
