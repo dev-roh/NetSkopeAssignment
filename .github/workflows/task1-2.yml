@@ -8,6 +8,9 @@ on:
 jobs:
   run-bandit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Required to check out the code
+      pull-requests: write  # Required to post PR comments and update the PR status
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,9 +31,30 @@ jobs:
           path: bandit-high-report.json
         
       - name: Check Bandit Report for High Severity Issues
+        id: check_bandit
         run: |
             if grep -q '"issue_severity": "HIGH"' bandit-high-report.json; then 
               echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
+              echo "reject_pr=true" >> $GITHUB_ENV
+              echo "reject_pr=true" 
             else 
-              echo "No high severity issues found in Bandit scan." 
+              echo "No high severity issues found in Bandit scan."
+              echo "reject_pr=false" >> $GITHUB_ENV 
+              echo "reject_pr=false" 
             fi
+        shell: bash
+        env:
+          reject_pr: false
+            
+      - name: Reject Pull Request if High Severity Issues Found
+        if: steps.check_bandit.outputs.reject_pr == 'true'
+        run: |
+          echo "High severity issues found. Rejecting the pull request."
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          COMMENT="🚨 **Security Scan Failed Block** 🚨  
+          Bandit detected high-severity security issues. Please fix them before merging."
+          gh pr comment $PR_NUMBER --body "$COMMENT"          
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMENT: "🚨 **BLOCK THE PR** 🚨"
