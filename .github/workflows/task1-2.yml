@@ -3,7 +3,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened]
+    
 
 jobs:
   run-bandit:
@@ -16,12 +16,18 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit
-        run: bandit -r . --severity-level high
+        run: bandit -r . --severity-level high -f json -o bandit-high-report.json
 
+      - name: Publish Bandit Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-high-report
+          path: bandit-high-report.json
+        
       - name: Check Bandit Report for High Severity Issues
         run: |
-            bandit -r . --severity-level high -f json > bandit-report.json
-            if grep -q '"issue_severity": "HIGH"' bandit-report.json; then
-                echo "::error::High severity issues found in Bandit scan. Rejecting the pull request."
-            else
-                echo "No high severity issues found in Bandit scan."
+            if grep -q '"issue_severity": "HIGH"' bandit*.son; then 
+              echo "::error:: High severity issues found in Bandit scan. Rejecting the pull request." 
+            else 
+              echo "No high severity issues found in Bandit scan." 
+            fi
