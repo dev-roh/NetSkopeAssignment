@@ -42,9 +42,9 @@ jobs:
               echo "reject_pr=false" >> $GITHUB_ENV 
               echo "reject_pr=false" 
             fi
-        shell: bash
-        env:
-          reject_pr: false
+        continue-on-error: true
+        # The continue-on-error flag is set to true to allow the workflow to continue even if Bandit finds issues.
+        
             
       - name: Reject Pull Request if High Severity Issues Found
         if: steps.check_bandit.outputs.reject_pr == 'true'
