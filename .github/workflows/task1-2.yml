@@ -44,6 +44,7 @@ jobs:
               PR_NUMBER=${{ github.event.pull_request.number }}
               COMMENT="✅ **Successful**✅  No high-severity issues found in Bandit scan. You can proceed with the merge."
               gh pr review $PR_NUMBER -a -b "$COMMENT"
+              gh pr meger $PR_NUMBER --auto 
             fi
         env:
           GH_TOKEN: ${{ github.token }}
