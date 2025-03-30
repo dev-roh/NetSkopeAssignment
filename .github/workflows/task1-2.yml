@@ -47,5 +47,5 @@ jobs:
               gh pr merge $PR_NUMBER --merge 
             fi
         env:
-          GH_TOKEN: ${{ secrets.SECURE_PAT }}
+          GH_TOKEN: ${{ github.token }}
         
