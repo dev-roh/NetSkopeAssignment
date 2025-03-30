@@ -3,14 +3,14 @@ on:
   pull_request:
     branches:
       - main
-    
+  permissions:
+      contents: write # Required to check out the code
+      pull-requests: write  # Required to post PR comments and update the PR status  
 
 jobs:
   run-bandit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # Required to check out the code
-      pull-requests: write  # Required to post PR comments and update the PR status
+          
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
