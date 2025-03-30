@@ -3,14 +3,14 @@ on:
   pull_request:
     branches:
       - main
-    
+  permissions:
+      contents: write # Required to check out the code
+      pull-requests: write  # Required to post PR comments and update the PR status  
 
 jobs:
   run-bandit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # Required to check out the code
-      pull-requests: write  # Required to post PR comments and update the PR status
+          
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
               PR_NUMBER=${{ github.event.pull_request.number }}
               COMMENT="✅ **Successful**✅  No high-severity issues found in Bandit scan. You can proceed with the merge."
               gh pr review $PR_NUMBER -a -b "$COMMENT"
-              gh pr merge $PR_NUMBER --auto 
+              gh pr merge $PR_NUMBER --merge 
             fi
         env:
           GH_TOKEN: ${{ github.token }}
