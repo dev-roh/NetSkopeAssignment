@@ -3,7 +3,7 @@ on:
   pull_request:
     branches:
       - main
-  permissions:
+permissions:
       contents: write # Required to check out the code
       pull-requests: write  # Required to post PR comments and update the PR status  
 
